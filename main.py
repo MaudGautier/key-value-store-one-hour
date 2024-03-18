@@ -13,6 +13,11 @@ def create_record(key, value):
     return f"{key}{SEPARATOR}{value}\n"
 
 
+def clear():
+    for file in os.listdir(DATABASE):
+        os.remove(f"{DATABASE}/{file}")
+
+
 # DATABASE
 def set(key, value):
     # o(1)
@@ -35,6 +40,8 @@ def get(key):
 
 # TESTING
 if __name__ == "__main__":
+    clear()
+
     print("---- SET KEY-VALUES ---- ")
     set("key1", "value1")
     set("key2", "value2")
