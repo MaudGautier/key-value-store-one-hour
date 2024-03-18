@@ -2,6 +2,7 @@ import os
 
 DATABASE = "./datafiles/"
 SEPARATOR = ","
+HASH_INDEX = {}
 
 
 # UTILS
@@ -24,17 +25,22 @@ def set(key, value):
     file = select_datafile()
     record = create_record(key, value)
     with open(file, "a") as f:
+        offset = f.tell()
         f.write(record)
+        HASH_INDEX[key] = (file, offset)
 
 
 def get(key):
-    # o(n)
-    file = select_datafile()
-    value = None
+    # o(1)
+    if key not in HASH_INDEX:
+        return None
+
+    file, offset = HASH_INDEX[key]
     with open(file, "r") as f:
-        for line in f:
-            if line.startswith(f"{key}{SEPARATOR}"):
-                value = line[len(f"{key}{SEPARATOR}"):-1]
+        f.seek(offset)
+        line = f.readline()
+        value = line[len(f"{key}{SEPARATOR}"):-1]
+
     return value
 
 
