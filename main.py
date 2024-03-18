@@ -61,13 +61,14 @@ def get(key):
     return value
 
 
-def compact(infile, outfile):
+def merge(infiles, outfile):
     kv_pairs = {}
-    with open(infile, "r") as f:
-        lines = f.readlines()
-        for line in lines:
-            key, _ = line[:-1].split(SEPARATOR)
-            kv_pairs[key] = line
+    for infile in infiles:
+        with open(infile, "r") as f:
+            lines = f.readlines()
+            for line in lines:
+                key, _ = line[:-1].split(SEPARATOR)
+                kv_pairs[key] = line
 
     with open(outfile, "w") as f:
         for key, line in kv_pairs.items():
@@ -75,7 +76,8 @@ def compact(infile, outfile):
             f.write(line)
             HASH_INDEX[key] = (outfile, offset)
 
-    os.remove(infile)
+    for infile in infiles:
+        os.remove(infile)
 
 
 # TESTING
@@ -94,10 +96,10 @@ if __name__ == "__main__":
     for key in ["key1", "key2", "key3"]:
         print(f"Value for key '{key}' is {get(key)}")
 
-    print("---- COMPACT ---- ")
-    infile = f"{DATABASE}/0.txt"
-    outfile = f"{DATABASE}/0_compacted.txt"
-    compact(infile, outfile)
+    print("---- MERGE ALL FILES INTO ONE ---- ")
+    infiles = list_files()
+    outfile = f"{DATABASE}/merged.txt"
+    merge(infiles, outfile)
 
     print("--- GET VALUES ----- ")
     for key in ["key1", "key2", "key3"]:
