@@ -22,6 +22,17 @@ def set(key, value):
         f.write(record)
 
 
+def get(key):
+    # o(n)
+    file = select_datafile()
+    value = None
+    with open(file, "r") as f:
+        for line in f:
+            if line.startswith(f"{key}{SEPARATOR}"):
+                value = line[len(f"{key}{SEPARATOR}"):-1]
+    return value
+
+
 # TESTING
 if __name__ == "__main__":
     print("---- SET KEY-VALUES ---- ")
@@ -30,3 +41,6 @@ if __name__ == "__main__":
     set("key1", "another_value1")
     set("key1", "yet_another_value1")
 
+    print("--- GET VALUES ----- ")
+    for key in ["key1", "key2", "key3"]:
+        print(f"Value for key '{key}' is {get(key)}")
