@@ -3,11 +3,28 @@ import os
 DATABASE = "./datafiles/"
 SEPARATOR = ","
 HASH_INDEX = {}
+THRESHOLD = 30  # Max number of bytes in each datafile
 
 
 # UTILS
+def list_files():
+    return [f"{DATABASE}/{filename}" for filename in sorted(os.listdir(DATABASE))]
+
+
 def select_datafile():
-    return f"{DATABASE}/0.txt"
+    all_files = list_files()
+    if len(all_files) == 0:
+        return f"{DATABASE}/0.txt"
+
+    current_file = all_files[-1]
+    with open(current_file, "a") as f:
+        offset = f.tell()
+        # Create new file if too big
+        if offset > THRESHOLD:
+            index = len(all_files)
+            return f"{DATABASE}/{index}.txt"
+
+    return current_file
 
 
 def create_record(key, value):
@@ -70,14 +87,16 @@ if __name__ == "__main__":
     set("key2", "value2")
     set("key1", "another_value1")
     set("key1", "yet_another_value1")
+    set("key2", "another_value2")
+    set("key1", "i_need_yet_another_value1")
 
     print("--- GET VALUES ----- ")
     for key in ["key1", "key2", "key3"]:
         print(f"Value for key '{key}' is {get(key)}")
 
     print("---- COMPACT ---- ")
-    infile = select_datafile()
-    outfile = f"{DATABASE}/compacted.txt"
+    infile = f"{DATABASE}/0.txt"
+    outfile = f"{DATABASE}/0_compacted.txt"
     compact(infile, outfile)
 
     print("--- GET VALUES ----- ")
